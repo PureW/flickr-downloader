@@ -11,7 +11,8 @@ Optionally set as background using feh.
 Example
 -------
 
-    python flickr_background.py --feh
+    ./flickr_background.py --rand --verbose \
+        --min-size 1280x720 --ratios 1.7-1.8 --post-step feh-bg
 
 Usage
 ------
