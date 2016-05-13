@@ -64,8 +64,10 @@ def get_interesting(opts):
     if opts['rand']:
         random.shuffle(pics)
     if has_gevent:
+        print('Loading pictures in parallel using gevent')
         results = get_pics_par(pics, opts)
     else:
+        print('Loading pictures in sequentially without gevent')
         results = get_pics_seq(pics, opts)
 
     fnames = list(filter(lambda s: isinstance(s, str), results))
@@ -98,7 +100,7 @@ def get_pics_seq(pics, opts):
 
 
 def get_pics_par(pics, opts):
-    gpool = pool.Pool(10)
+    gpool = pool.Pool(opts['threads'])
 
     def _get_pic(pic):
         pic_id = pic['id']
@@ -175,6 +177,7 @@ def parse_args():
                         help='Look for picture-ratios in this range.')
     parser.add_argument('-t', '--threads',
                         default=10,
+                        type=int,
                         help='Number of green threads used for downloading.')
     parser.add_argument('-v', '--verbose',
                         action='store_true',
@@ -201,6 +204,7 @@ if __name__ == '__main__':
         'rand': args.random,
         'min_size': tuple(map(int, args.min_size.split('x'))),
         'ratios': tuple(map(float, args.ratios.split('-'))),
+        'threads': args.threads,
         'verbose': args.verbose,
     }
     fnames = get_interesting(opts=opts)
