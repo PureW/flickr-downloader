@@ -24,6 +24,8 @@ ERROR_WRONG_SIZE = -2
 ERROR_WRONG_RATIO = -3
 ERROR_PARSING = -4
 
+ENV_APIKEY = 'APIKEY_FLICKR'
+
 def log(msg, verbose=True):
     if verbose:
         print(msg)
@@ -53,6 +55,9 @@ def get_interesting(opts):
     args.update(base_args(opts['apikey']))
     r = requests.get(ENDPOINT, params=args)
     dat = json.loads(r.text)
+    if dat['stat'] == 'fail':
+        print(dat['message'])
+        sys.exit(1)
 
     pics = dat['photos']['photo']
 
@@ -147,8 +152,8 @@ def parse_args():
     import argparse
     parser = argparse.ArgumentParser(
         description=("Download interesting-pictures from flickr. "
-                     "Reads flickr-apikey from env-var APIKEY_FLICKR "
-                     "or optional --apikey-flag."""))
+                     "Reads flickr-apikey from env-var {} "
+                     "or optional --apikey-flag.".format(ENV_APIKEY)))
     parser.add_argument('-k', '--apikey',
                         help='API-key for flickr')
     parser.add_argument('-p', '--path',
@@ -183,9 +188,10 @@ def parse_args():
 if __name__ == '__main__':
     args = parse_args()
 
-    apikey = args.apikey or os.getenv('APIKEY_FLICKR')
+    apikey = args.apikey or os.getenv(ENV_APIKEY)
     if not apikey:
-        print('ERROR: No apikey found')
+        print('ERROR: No apikey found. Supply one in {}-env-var or as --api-key APIKEY'
+              .format(ENV_APIKEY))
         sys.exit(1)
     os.makedirs(args.path, exist_ok=True)
     opts = {
