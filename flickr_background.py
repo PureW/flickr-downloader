@@ -13,7 +13,8 @@ import random
 import subprocess
 import requests
 try:
-    import requests_cache; requests_cache.install_cache()
+    import requests_cache; requests_cache.install_cache(
+        expire_after=300)
 except:
     pass
 
